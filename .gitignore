@@ -15,6 +15,7 @@ logs/
 
 # IDEA files
 .idea/*
+!.idea/checkstyle-idea.xml
 *.ipr
 *.iml
 *.iws
@@ -36,3 +37,5 @@ hs_err_pid*
 *.classpath
 *.settings
 .project
+
+upload

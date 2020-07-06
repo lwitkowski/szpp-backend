@@ -7,7 +7,8 @@ import com.tngtech.archunit.lang.ArchRule;
 
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
-@AnalyzeClasses(packages = ProjectArchitectureTest.PROJECT_ROOT_PACKAGE, importOptions = ImportOption.DoNotIncludeTests.class)
+@AnalyzeClasses(packages = ProjectArchitectureTest.PROJECT_ROOT_PACKAGE,
+    importOptions = ImportOption.DoNotIncludeTests.class)
 public class ProjectArchitectureTest {
 
     public static final String PROJECT_ROOT_PACKAGE = "pl.szpp.backend";
