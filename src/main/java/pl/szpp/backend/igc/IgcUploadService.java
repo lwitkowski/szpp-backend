@@ -6,13 +6,13 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.szpp.backend.igc.parser.IgcFile;
+import pl.szpp.backend.igc.parser.IgcParser;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,36 +28,40 @@ class IgcUploadService {
     @ConfigProperty(name = "igc.upload.dir")
     String uploadDirectory;
 
+    private IgcParser igcParser = new IgcParser();
+
     @PostConstruct
     void postConstruct() {
         File dir = new File(uploadDirectory);
         dir.mkdirs();
 
-        logger.info("IGC file upload target dir: {}", dir.getAbsolutePath());
+        logger.info("IGC file storage location: {}", dir.getAbsolutePath());
     }
 
-    void upload(MultipartFormDataInput input) {
+    IgcFile upload(MultipartFormDataInput input) {
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
         List<InputPart> inputParts = uploadForm.get("file");
-        if (inputParts == null || inputParts.isEmpty()) {
+        if (inputParts == null || inputParts.isEmpty() || inputParts.size() > 1) {
             throw new BadRequestException("file multipart form data not found");
         }
 
-        for (InputPart inputPart : inputParts) {
-            try {
-                String fileName = getFileName(inputPart);
+        InputPart inputPart = inputParts.get(0);
+        String fileName = getFileName(inputPart);
+        IgcFile igcFile;
+        try {
+            igcFile = igcParser.parse(inputPart.getBody(InputStream.class, null));
 
-                InputStream inputStream = inputPart.getBody(InputStream.class, null);
-                byte[] bytes = IOUtils.toByteArray(inputStream);
+            byte[] bytes = IOUtils.toByteArray(inputPart.getBody(InputStream.class, null));
 
-                writeFile(bytes, fileName);
+            writeFile(bytes, fileName);
 
-                logger.info("File saved as {}, size: {}kB", fileName, bytes.length >> 10);
+            logger.info("File saved as {}, size: {}kB", fileName, bytes.length >> 10);
 
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
+        return igcFile;
     }
 
     /**
@@ -81,7 +85,8 @@ class IgcUploadService {
         File file = new File(uploadDirectory + filename);
 
         if (file.exists()) {
-            throw new WebApplicationException("File exists", Response.Status.CONFLICT);
+            //throw new WebApplicationException("File exists", Response.Status.CONFLICT);
+            file.delete();
         }
 
         file.createNewFile();

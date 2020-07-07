@@ -8,13 +8,13 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @QuarkusTest
 class IgcResourceIT {
@@ -40,16 +40,19 @@ class IgcResourceIT {
 
     @Test
     void uploadShouldStoreIgcFile() {
+        File originalFile = new File("src/test/resources/igc/" + FILENAME);
         given()
-            .multiPart("file", new File("src/test/resources/igc/" + FILENAME))
+            .multiPart("file", originalFile)
             .when()
             .accept(ContentType.JSON)
             .post("/igc/upload")
             .then()
-            .statusCode(200);
+            .statusCode(200)
+            .body("pilotInCharge", is("LUKASZ___WITKOWSKI"));
 
-        File file = new File(uploadDirectory + FILENAME);
-        assertThat(file.exists()).isTrue();
+        File uploadedFile = new File(uploadDirectory + FILENAME);
+        assertThat(uploadedFile.exists()).isTrue();
+        assertThat(uploadedFile).hasSameContentAs(originalFile);
     }
 
 }
