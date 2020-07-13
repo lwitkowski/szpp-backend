@@ -1,4 +1,4 @@
-package pl.szpp.backend.igc;
+package pl.szpp.backend.task;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
@@ -18,46 +18,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @QuarkusTest
-class IgcResourceIT {
-
-    static final String FILENAME = "953LNF91.IGC";
+class TaskResourceIT {
 
     static {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     }
 
-    @ConfigProperty(name = "igc.upload.dir")
-    String uploadDirectory;
-
-    @BeforeEach
-    void setup() throws IOException {
-        File uploadDir = new File(uploadDirectory);
-        FileUtils.deleteDirectory(uploadDir);
-        uploadDir.mkdirs();
-    }
-
-    @AfterEach
-    void teardown() throws IOException {
-        File uploadDir = new File(uploadDirectory);
-        FileUtils.deleteDirectory(uploadDir);
-        uploadDir.mkdirs();
-
-    }
-
     @Test
-    void uploadShouldStoreIgcFile() {
+    void calculateShouldReturnBasicDeclaredTaskResult() {
         given()
             .multiPart("file", IgcFileFixtures.IGC_FILE)
             .when()
             .accept(ContentType.JSON)
-            .post("/igc/upload")
+            .post("/task/calculate")
             .then()
             .statusCode(200)
-            .body("pilotInCharge", is("LUKASZ___WITKOWSKI"));
-
-        File uploadedFile = new File(uploadDirectory + FILENAME);
-        assertThat(uploadedFile.exists()).isTrue();
-        assertThat(uploadedFile).hasSameContentAs(IgcFileFixtures.IGC_FILE);
+            .body("results.BasicDeclaredTask.completed", is(true));
     }
 
 }

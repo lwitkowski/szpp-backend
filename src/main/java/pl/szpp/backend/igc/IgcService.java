@@ -6,8 +6,8 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.szpp.backend.igc.parser.IgcFile;
-import pl.szpp.backend.igc.parser.IgcParser;
+import pl.szpp.backend.igc.file.IgcFile;
+import pl.szpp.backend.igc.file.IgcParser;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
-class IgcUploadService {
+public class IgcService {
 
-    private static final Logger logger = LoggerFactory.getLogger(IgcUploadService.class);
+    private static final Logger logger = LoggerFactory.getLogger(IgcService.class);
 
     @ConfigProperty(name = "igc.upload.dir")
     String uploadDirectory;
@@ -38,19 +38,16 @@ class IgcUploadService {
         logger.info("IGC file storage location: {}", dir.getAbsolutePath());
     }
 
-    IgcFile upload(MultipartFormDataInput input) {
+    void upload(MultipartFormDataInput input) {
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
         List<InputPart> inputParts = uploadForm.get("file");
-        if (inputParts == null || inputParts.isEmpty() || inputParts.size() > 1) {
+        if (inputParts == null || inputParts.size() != 1) {
             throw new BadRequestException("file multipart form data not found");
         }
 
         InputPart inputPart = inputParts.get(0);
         String fileName = getFileName(inputPart);
-        IgcFile igcFile;
         try {
-            igcFile = igcParser.parse(inputPart.getBody(InputStream.class, null));
-
             byte[] bytes = IOUtils.toByteArray(inputPart.getBody(InputStream.class, null));
 
             writeFile(bytes, fileName);
@@ -60,7 +57,22 @@ class IgcUploadService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    public IgcFile parse(MultipartFormDataInput input) {
+        Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+        List<InputPart> inputParts = uploadForm.get("file");
+        if (inputParts == null || inputParts.size() != 1) {
+            throw new BadRequestException("file multipart form data not found");
+        }
+
+        InputPart inputPart = inputParts.get(0);
+        IgcFile igcFile;
+        try {
+            igcFile = igcParser.parse(inputPart.getBody(InputStream.class, null));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return igcFile;
     }
 

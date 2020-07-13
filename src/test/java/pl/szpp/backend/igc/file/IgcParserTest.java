@@ -1,4 +1,4 @@
-package pl.szpp.backend.igc.parser;
+package pl.szpp.backend.igc.file;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,11 +17,11 @@ class IgcParserTest {
 
         IgcFile igc = parser.parse(is);
 
-        assertThat(igc.getDate()).isEqualTo("2019-05-03");
-        assertThat(igc.getTaskDeclaration().wpCount()).isEqualTo(6);
-        assertThat(igc.getTrack()).hasSize(1308);
-        assertThat(igc.getMaxAltitude()).isEqualTo(2292);
-        assertThat(igc.getMinAltitude()).isEqualTo(435);
+        assertThat(igc.date).isEqualTo("2019-05-03");
+        assertThat(igc.declaration.countWaypoints()).isEqualTo(6);
+        assertThat(igc.track).hasSize(1308);
+        assertThat(igc.maxAltitude).isEqualTo(2292);
+        assertThat(igc.minAltitude).isEqualTo(435);
 
         assertThat(igc.getTakeOffTime()).isEqualTo("11:50:48");
         assertThat(igc.getTakeOffAltitude()).isEqualTo(443);

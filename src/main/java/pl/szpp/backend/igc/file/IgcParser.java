@@ -1,9 +1,5 @@
-package pl.szpp.backend.igc.parser;
+package pl.szpp.backend.igc.file;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.BadRequestException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,19 +8,17 @@ import java.util.function.BiConsumer;
 
 public class IgcParser {
 
-    private static Logger logger = LoggerFactory.getLogger(IgcParser.class);
-
     public IgcFile parse(InputStream inputStream) {
-        IgcFile igcFile = new IgcFile();
+        IgcFile.Builder igcFile = IgcFile.builder();
 
         try (InputStreamReader isReader = new InputStreamReader(inputStream);
              BufferedReader reader = new BufferedReader(isReader)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (Fix.isBRecord(line)) {
-                    igcFile.appendTrackPoint(new Fix(line));
+                    igcFile.appendTrackPoint(Fix.parseIgcLine(line));
                 } else if (WayPoint.isCRecord(line)) {
-                    igcFile.appendWayPoint(new WayPoint(line));
+                    igcFile.appendWayPoint(WayPoint.parseIgcLine(line));
                 } else {
                     GeneralField.setIfMatch(igcFile, line);
                 }
@@ -33,29 +27,28 @@ public class IgcParser {
             throw new RuntimeException(e);
         }
 
-        igcFile.finish();
-        return igcFile;
+        return igcFile.build();
     }
 
     private enum GeneralField {
-        PILOT("HFPLTPILOT:", IgcFile::setPilotInCharge),
-        PILOT_IN_CHARGE("HFPLTPILOTINCHARGE:", IgcFile::setPilotInCharge),
-        GLIDER_ID("HFGIDGLIDERID:", IgcFile::setGliderId),
-        GLIDER_TYPE("HFGTYGLIDERTYPE:", IgcFile::setGliderType),
-        FLIGHT_DATE("HFDTE", IgcFile::setDate),
-        RECORDER_TYPE("HFFTYFRTYPE:", IgcFile::setRecorderType),
-        COMP_ID("HFCIDCOMPETITIONID:", IgcFile::setCompetitionId),
-        COMP_CLASS("HFCCLCOMPETITIONCLASS:", IgcFile::setCompetitionClass);
+        PILOT("HFPLTPILOT:", IgcFile.Builder::withPilotInCharge),
+        PILOT_IN_CHARGE("HFPLTPILOTINCHARGE:", IgcFile.Builder::withPilotInCharge),
+        GLIDER_ID("HFGIDGLIDERID:", IgcFile.Builder::withGliderId),
+        GLIDER_TYPE("HFGTYGLIDERTYPE:", IgcFile.Builder::withGliderType),
+        FLIGHT_DATE("HFDTE", IgcFile.Builder::withDate),
+        RECORDER_TYPE("HFFTYFRTYPE:", IgcFile.Builder::withRecorderType),
+        COMP_ID("HFCIDCOMPETITIONID:", IgcFile.Builder::withCompetitionId),
+        COMP_CLASS("HFCCLCOMPETITIONCLASS:", IgcFile.Builder::withCompetitionClass);
 
         private final String prefix;
-        private final BiConsumer<IgcFile, String> igcFileSetter;
+        private final BiConsumer<IgcFile.Builder, String> igcFileSetter;
 
-        GeneralField(String prefix, BiConsumer<IgcFile, String> igcFileSetter) {
+        GeneralField(String prefix, BiConsumer<IgcFile.Builder, String> igcFileSetter) {
             this.prefix = prefix;
             this.igcFileSetter = igcFileSetter;
         }
 
-        public static boolean setIfMatch(IgcFile file, String line) {
+        public static boolean setIfMatch(IgcFile.Builder file, String line) {
             final String lineUpperCase = line.toUpperCase();
 
             for (GeneralField field : GeneralField.values()) {
