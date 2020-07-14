@@ -9,7 +9,7 @@ import javax.ws.rs.core.Application;
 
 @OpenAPIDefinition(
     info = @Info(
-        title = "Szybowcowy Puchar Polski - backend app",
+        title = "Szybowcowy Puchar Polski - backend app REST API",
         version = "0.1"),
     components = @Components(
         responses = {

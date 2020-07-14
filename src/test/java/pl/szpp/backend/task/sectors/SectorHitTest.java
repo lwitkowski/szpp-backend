@@ -15,7 +15,7 @@ class SectorHitTest {
         LocalTime intersectionTime = SectorHit.interpolateHitTime(
             fix("5053100N", "01912480E", "19:35:00"),
             fix("5053100N", "01912680E", "19:35:20"),
-            LatLng.parse("5053100N", "01912580E")
+            new LatLng("5053100N", "01912580E")
         );
 
         assertThat(intersectionTime).isEqualTo("19:35:11");

@@ -19,11 +19,9 @@ public class LatLng {
         this.longitude = longitude;
     }
 
-    public static LatLng parse(String latitude, String longitude) {
-        return new LatLng(
-            parseLatitude(latitude),
-            parseLongitude(longitude)
-        );
+    public LatLng(String latitudeString, String longitudeString) {
+        this.latitude = parseLatitude(latitudeString);
+        this.longitude = parseLongitude(longitudeString);
     }
 
     public static double parseLatitude(String lat) {

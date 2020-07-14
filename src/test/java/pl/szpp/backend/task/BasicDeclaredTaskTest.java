@@ -7,6 +7,7 @@ import pl.szpp.backend.igc.file.WayPoint;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.szpp.backend.igc.file.IgcFileFixtures.HEADER;
@@ -17,50 +18,103 @@ class BasicDeclaredTaskTest {
 
     @Test
     void straightLineTaskCompleted() {
-        IgcFile igc = create();
+        IgcFile igc = forTrack(simpleTrack());
 
         TaskResult result = task.calculate(igc);
 
-        assertThat(result.completed).isTrue();
-        assertThat(result.duration()).isEqualTo(Duration.parse("PT35S"));
-        assertThat(result.averageSpeed()).isEqualTo(571.8596227434449);
+        assertThat(result.isCompleted()).isTrue();
+        assertThat(result.duration).isEqualTo(Duration.parse("PT35S"));
+        //assertThat(result.distanceTravelled()).isEqualTo(571.8596227434449);
+        //assertThat(result.averageSpeed()).isEqualTo(571.8596227434449);
     }
 
-    private IgcFile create() {
-        IgcFile.Builder igc = IgcFile.builder()
-            .withDate("190701");
-        createDeclaration(igc);
-        createTrack(igc);
+    private IgcFile forTrack(List<Fix> track) {
+        IgcFile.Builder igc = IgcFile.builder().withDate("190701");
+
+        igc.appendWayPoint(WayPoint.parseIgcLine(HEADER));
+        igc.appendWayPoint(wp(-1, "TAKEOFF"));
+        igc.appendWayPoint(wp(0, "START"));
+        igc.appendWayPoint(wp(3, "TP1"));
+        igc.appendWayPoint(wp(-3, "TP2"));
+        igc.appendWayPoint(wp(0, "FiNISH"));
+        igc.appendWayPoint(wp(-1, "LANDING"));
+
+        track.forEach(igc::appendTrackPoint);
+
         return igc.build();
     }
 
-    private void createDeclaration(IgcFile.Builder igc) {
-        igc.appendWayPoint(WayPoint.parseIgcLine(HEADER));
-        igc.appendWayPoint(wp(-1)); // takeoff
-        igc.appendWayPoint(wp(0)); // start
-        igc.appendWayPoint(wp(1)); // tp1
-        igc.appendWayPoint(wp(2)); // tp2
-        igc.appendWayPoint(wp(3)); // finish
-        igc.appendWayPoint(wp(4)); // landing
+    private List<Fix> simpleTrack() {
+        return List.of(
+            fix(-0.3, 7),
+            fix(0.1, 11), // after start line
+            fix(2.7, 20),
+            fix(3, 25), // tp1, 25th second
+            fix(3.1, 28),
+            fix(-2.7, 30),
+            fix(-3.01, 35), // tp2, 35th second
+            fix(-0.8, 44),
+            fix(0.1, 45) // after finish line
+        );
     }
 
-    private void createTrack(IgcFile.Builder igc) {
-        igc.appendTrackPoint(fix(-1, 0));
-        igc.appendTrackPoint(fix(-1.1, 3));
-        igc.appendTrackPoint(fix(-1.3, 5));
-        igc.appendTrackPoint(fix(-0.3, 7));
-        igc.appendTrackPoint(fix(0.1, 11)); // first after start, start crossed at 10th second
-        igc.appendTrackPoint(fix(0.7, 20));
-        igc.appendTrackPoint(fix(1, 25)); // tp1, 25th second
-        igc.appendTrackPoint(fix(1.3, 28));
-        igc.appendTrackPoint(fix(2, 35)); // tp2, 35th second
-        igc.appendTrackPoint(fix(2.99, 44));
-        igc.appendTrackPoint(fix(3.1, 45)); // first after finish line, 45th second
-        igc.appendTrackPoint(fix(3.5, 47));
+    @Test
+    void shouldUseLastStartAndFirstEndFix() {
+        IgcFile igc = forTrack(createTrackWithMultipleStartAndFinishCrosses());
+
+        TaskResult result = task.calculate(igc);
+
+        assertThat(result.isCompleted()).isTrue();
+        assertThat(result.duration).isEqualTo(Duration.parse("PT29S"));
+        //assertThat(result.averageSpeed()).isEqualTo(690.17540675933);
     }
 
-    private WayPoint wp(double lonMinutes) {
-        return new WayPoint(0, lonMinutes / 60, "");
+    private List<Fix> createTrackWithMultipleStartAndFinishCrosses() {
+        return List.of(
+            fix(-0.3, 7),
+            fix(0.1, 11), // after start line
+            fix(-0.5, 13),
+            fix(0.1, 16), // second start crossed at 15th second
+            fix(2.7, 20),
+            fix(3, 25), // tp1, 25th second
+            fix(3.1, 28),
+            fix(-2.7, 30),
+            fix(-3.01, 35), // tp2, 35th second
+            fix(-0.8, 44),
+            fix(0.1, 45), // after finish line
+            fix(-2, 47),
+            fix(-0.5, 49),
+            fix(0.5, 51) // second finish line cross
+        );
+    }
+
+    @Test
+    void notCompletedTask() {
+        IgcFile igc = forTrack(notCompletedTrack());
+
+        TaskResult result = task.calculate(igc);
+
+        assertThat(result.isCompleted()).isFalse();
+        //assertThat(result.duration()).isEqualTo(Duration.parse("PT35S"));
+        //assertThat(result.distanceTravelled()).isEqualTo(571.8596227434449);
+        //assertThat(result.averageSpeed()).isEqualTo(571.8596227434449);
+    }
+
+    private List<Fix> notCompletedTrack() {
+        return List.of(
+            fix(-0.3, 7),
+            fix(0.1, 11), // after start line
+            fix(2.7, 20),
+            fix(3, 25), // tp1, 25th second
+            fix(3.1, 28),
+            fix(-2.7, 30),
+            fix(-3.01, 35), // tp2, 35th second
+            fix(-0.8, 44) // photolanding
+        );
+    }
+
+    private WayPoint wp(double lonMinutes, String description) {
+        return new WayPoint(0, lonMinutes / 60, description);
     }
 
     private Fix fix(double lonMinutes, int secondsOffset) {

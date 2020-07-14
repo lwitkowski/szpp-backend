@@ -35,7 +35,8 @@ public class IgcParser {
         PILOT_IN_CHARGE("HFPLTPILOTINCHARGE:", IgcFile.Builder::withPilotInCharge),
         GLIDER_ID("HFGIDGLIDERID:", IgcFile.Builder::withGliderId),
         GLIDER_TYPE("HFGTYGLIDERTYPE:", IgcFile.Builder::withGliderType),
-        FLIGHT_DATE("HFDTE", IgcFile.Builder::withDate),
+        FLIGHT_DATE("HFDTEDATE:", IgcFile.Builder::withDate),
+        FLIGHT_DATE_OLD_FORMAT("HFDTE", IgcFile.Builder::withDate),
         RECORDER_TYPE("HFFTYFRTYPE:", IgcFile.Builder::withRecorderType),
         COMP_ID("HFCIDCOMPETITIONID:", IgcFile.Builder::withCompetitionId),
         COMP_CLASS("HFCCLCOMPETITIONCLASS:", IgcFile.Builder::withCompetitionClass);

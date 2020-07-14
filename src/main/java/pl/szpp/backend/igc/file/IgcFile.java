@@ -30,7 +30,7 @@ public class IgcFile {
     public final Fix takeOffFix;
     public final Fix landingFix;
 
-    public IgcFile(TaskDeclaration declaration, List<Fix> fixes, String pilotInCharge, String gliderId, String gliderType,
+    private IgcFile(TaskDeclaration declaration, List<Fix> fixes, String pilotInCharge, String gliderId, String gliderType,
                    String competitionClass, String competitionId, String recorderType, LocalDate date) {
 
         this.declaration = declaration;
@@ -105,6 +105,11 @@ public class IgcFile {
         return landingFix.getAltitude();
     }
 
+    // Only fixes after tow/winch release
+    public List<Fix> soaringTrack() {
+        return track;
+    }
+
     @Override
     public String toString() {
         return "IgcFile { fixes: " + track.size() + ", "
@@ -159,7 +164,7 @@ public class IgcFile {
                 throw new InvalidIgcException("Invalid format or missing date record");
             }
             return LocalDate.of(
-                Integer.parseInt("20" + date.substring(4)),
+                Integer.parseInt("20" + date.substring(4, 6)),
                 Integer.parseInt(date.substring(2, 4)),
                 Integer.parseInt(date.substring(0, 2))
             );

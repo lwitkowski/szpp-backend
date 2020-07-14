@@ -1,5 +1,6 @@
 package pl.szpp.backend.task.sectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import pl.szpp.backend.igc.file.Fix;
 import pl.szpp.backend.igc.file.LatLng;
 
@@ -7,14 +8,21 @@ import java.time.LocalTime;
 
 public class SectorHit extends LatLng {
 
-    public final WayPointSector sector;
-    public final LocalTime time;
-    public final Fix lastBefore;
-    public final Fix firstAfter;
+    public static final SectorHit EMPTY = new SectorHit();
 
-    public SectorHit(WayPointSector sector, LatLng hit, Fix lastBefore, Fix firstAfter) {
+    public final LocalTime time;
+    @JsonIgnore public final Fix lastBefore;
+    @JsonIgnore public final Fix firstAfter;
+
+    private SectorHit() {
+        super(0.0, 0.0);
+        this.time = null;
+        this.lastBefore = null;
+        this.firstAfter = null;
+    }
+
+    public SectorHit(LatLng hit, Fix lastBefore, Fix firstAfter) {
         super(hit.latitude, hit.longitude);
-        this.sector = sector;
         this.time = interpolateHitTime(lastBefore, firstAfter, hit);
         this.lastBefore = lastBefore;
         this.firstAfter = firstAfter;
@@ -26,4 +34,10 @@ public class SectorHit extends LatLng {
         int previousToIntersectionSeconds = (int) Math.ceil(fixesTimeDifferenceSeconds * previousToIntersectionDistanceRatio);
         return LocalTime.ofSecondOfDay(lastBefore.time.toSecondOfDay() + previousToIntersectionSeconds);
     }
+
+    @Override
+    public String toString() {
+        return "SectorHit{" + time + ", " + latitudeString() + " " + longitudeString() + "}";
+    }
+
 }

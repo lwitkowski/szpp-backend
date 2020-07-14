@@ -1,10 +1,8 @@
 package pl.szpp.backend.task.sectors;
 
 import org.junit.jupiter.api.Test;
-import pl.szpp.backend.igc.file.Fix;
 import pl.szpp.backend.igc.file.WayPoint;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,23 +10,21 @@ import static pl.szpp.backend.igc.file.FixFixtures.fix;
 
 class LineSectorTest {
 
-    static final WayPoint START = WayPoint.parseIgcLine("C5053100N01912283ESTART");
+    static final WayPoint START = new WayPoint("5053100N", "01912283E", "START");
     static final int LINE_WIDTH_METERS = 10000;
 
     final LineSector lineSector = LineSector.forRoute(
         START,
         LINE_WIDTH_METERS,
-        WayPoint.parseIgcLine("C5053100N01750233EWP1")
+        new WayPoint("5053100N", "01750233E", "WP1")
     );
 
     @Test
     void checkIntersectionForVerticalStartLine() {
-        List<Fix> track = List.of(
+        Optional<SectorHit> hitOptional = lineSector.checkHit(
             fix("5053100N", "01912480E", "19:35:00"),
             fix("5053100N", "01912180E", "19:35:08")
         );
-
-        Optional<SectorHit> hitOptional = lineSector.findFirstHit(track);
 
         assertThat(hitOptional).isNotEmpty();
         SectorHit hit = hitOptional.get();
@@ -38,25 +34,21 @@ class LineSectorTest {
     }
 
     @Test
-    void checkNoIntersectionForVerticalStartLine() {
-        List<Fix> track = List.of(
-            fix("5053100N", "01912380E", "19:35:00"),
-            fix("5053100N", "01912290E", "19:35:10")
+    void noHitForPerpendicularButSeparateSegment() {
+        Optional<SectorHit> hitOptional = lineSector.checkHit(
+            fix("5253100N", "01912283E", "19:35:00"),
+            fix("5153100N", "01912283E", "19:35:10")
         );
-
-        Optional<SectorHit> hitOptional = lineSector.findFirstHit(track);
 
         assertThat(hitOptional).isEmpty();
     }
 
     @Test
-    void checkNoIntersectionForParallel() {
-        List<Fix> track = List.of(
+    void noHitForParallelSegment() {
+        Optional<SectorHit> hitOptional = lineSector.checkHit(
             fix("5055100N", "01912380E", "19:35:00"),
             fix("5055100N", "01912290E", "19:35:10")
         );
-
-        Optional<SectorHit> hitOptional = lineSector.findFirstHit(track);
 
         assertThat(hitOptional).isEmpty();
     }

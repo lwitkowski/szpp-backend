@@ -23,7 +23,7 @@ class FixTest {
 
     @Test
     void gpsAltitudeShouldHavePrecedenceOverBaro() {
-        Fix fix = new Fix(0.0, 0.0, LocalTime.now(), 12, 34);
+        Fix fix = new Fix("000000N", "0000000E", LocalTime.now(), 12, 34);
 
         assertThat(fix.getAltitude()).isEqualTo(34);
     }

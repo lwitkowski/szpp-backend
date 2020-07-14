@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LatLngTest {
 
-    static final LatLng EPRU = LatLng.parse("5053100N", "01912089E");
-    static final LatLng EPKA = LatLng.parse("5053487N", "02043529E");
+    static final LatLng EPRU = new LatLng("5053100N", "01912089E");
+    static final LatLng EPKA = new LatLng("5053487N", "02043529E");
 
     @Test
     void parseShouldSupportNorthernAndEasternHemispheres() {
@@ -20,7 +20,7 @@ class LatLngTest {
 
     @Test
     void parseShouldSupportSouthernAndWesternHemispheres() {
-        LatLng coords = LatLng.parse("3428508S", "05925277W");
+        LatLng coords = new LatLng("3428508S", "05925277W");
 
         assertThat(coords.latitude).isEqualTo(-34.48077777777778);
         assertThat(coords.longitude).isEqualTo(-59.42436111111111);
@@ -42,8 +42,8 @@ class LatLngTest {
 
     @Test
     void distanceToForDistantCoordinatesShouldWork() {
-        LatLng from = LatLng.parse("500359N", "0054253W");
-        LatLng to = LatLng.parse("783838S", "0030412W");
+        LatLng from = new LatLng("500359N", "0054253W");
+        LatLng to = new LatLng("783838S", "0030412W");
 
         double distance = from.distanceTo(to);
 
@@ -52,7 +52,7 @@ class LatLngTest {
 
     @Test
     void destinationToSouthShouldWork() {
-        LatLng from = LatLng.parse("505310N", "0191209W");
+        LatLng from = new LatLng("505310N", "0191209W");
         double bearing = 180.0;
         double distance = 10000;
 
@@ -64,7 +64,7 @@ class LatLngTest {
 
     @Test
     void destinationToEastOnEquatorShouldWork() {
-        LatLng from = LatLng.parse("000000N", "0191209E");
+        LatLng from = new LatLng("000000N", "0191209E");
         double bearing = 90.0;
         double distance = 10000;
 
@@ -77,7 +77,7 @@ class LatLngTest {
 
     @Test
     void destinationNorthEastHemisphereShouldWork() {
-        LatLng from = LatLng.parse("505310N", "0191209E");
+        LatLng from = new LatLng("505310N", "0191209E");
         double bearing = LatLng.parseLongitude("0890118");
         double distance = 106000;
 

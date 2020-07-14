@@ -21,8 +21,15 @@ public class Fix extends LatLng {
     public final int altitudeBaro;
     public final int altitudeGps;
 
-    public Fix(double lat, double lon, LocalTime time, int altBaro, int altGps) {
-        super(lat, lon);
+    public Fix(double latitude, double longitude, LocalTime time, int altBaro, int altGps) {
+        super(latitude, longitude);
+        this.time = time;
+        this.altitudeBaro = altBaro;
+        this.altitudeGps = altGps;
+    }
+
+    public Fix(String latitude, String longitude, LocalTime time, int altBaro, int altGps) {
+        super(latitude, longitude);
         this.time = time;
         this.altitudeBaro = altBaro;
         this.altitudeGps = altGps;
@@ -34,8 +41,8 @@ public class Fix extends LatLng {
 
     public static Fix parseIgcLine(String rawRecord) {
         return new Fix(
-            parseLatitude(rawRecord.substring(TIME_END_INDEX, LAT_END_INDEX)),
-            parseLongitude(rawRecord.substring(LAT_END_INDEX, LON_END_INDEX)),
+            rawRecord.substring(TIME_END_INDEX, LAT_END_INDEX),
+            rawRecord.substring(LAT_END_INDEX, LON_END_INDEX),
             parseTime(rawRecord.substring(TIME_START_INDEX, TIME_END_INDEX)),
             Integer.parseInt(rawRecord.substring(FIX_VALIDITY_START_INDEX, ALTITUDE_BARO_END_INDEX)),
             Integer.parseInt(rawRecord.substring(ALTITUDE_BARO_END_INDEX, ALTITUDE_GPS_END_INDEX))

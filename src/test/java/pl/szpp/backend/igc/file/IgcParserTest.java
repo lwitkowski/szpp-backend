@@ -32,4 +32,13 @@ class IgcParserTest {
         assertThat(igc.getFlightTime().toMinutes()).isEqualTo(106);
     }
 
+    @Test
+    void shouldSupportNewDateFormat() throws Exception {
+        FileInputStream is = new FileInputStream(new File("src/test/resources/igc/HFDTEDATE.IGC"));
+
+        IgcFile igc = parser.parse(is);
+
+        assertThat(igc.date).isEqualTo("2020-06-28");
+    }
+
 }

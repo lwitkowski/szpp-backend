@@ -1,5 +1,6 @@
 package pl.szpp.backend.igc.file;
 
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
