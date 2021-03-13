@@ -23,7 +23,7 @@ class BasicDeclaredTaskTest {
         TaskResult result = task.calculate(igc);
 
         assertThat(result.isCompleted()).isTrue();
-        assertThat(result.duration).isEqualTo(Duration.parse("PT35S"));
+        assertThat(result.duration).isEqualTo(Duration.parse("PT34S"));
         //assertThat(result.distanceTravelled()).isEqualTo(571.8596227434449);
         //assertThat(result.averageSpeed()).isEqualTo(571.8596227434449);
     }
@@ -65,21 +65,21 @@ class BasicDeclaredTaskTest {
         TaskResult result = task.calculate(igc);
 
         assertThat(result.isCompleted()).isTrue();
-        assertThat(result.duration).isEqualTo(Duration.parse("PT29S"));
+        assertThat(result.duration).isEqualTo(Duration.parse("PT28S"));
         //assertThat(result.averageSpeed()).isEqualTo(690.17540675933);
     }
 
     private List<Fix> createTrackWithMultipleStartAndFinishCrosses() {
         return List.of(
             fix(-0.3, 7),
-            fix(0.1, 11), // after start line
+            fixAfterStartLine(),
             fix(-0.5, 13),
             fix(0.1, 16), // second start crossed at 15th second
             fix(2.7, 20),
-            fix(3, 25), // tp1, 25th second
+            tp1(),
             fix(3.1, 28),
             fix(-2.7, 30),
-            fix(-3.01, 35), // tp2, 35th second
+            tp2(),
             fix(-0.8, 44),
             fix(0.1, 45), // after finish line
             fix(-2, 47),
@@ -103,14 +103,30 @@ class BasicDeclaredTaskTest {
     private List<Fix> notCompletedTrack() {
         return List.of(
             fix(-0.3, 7),
-            fix(0.1, 11), // after start line
+            fixAfterStartLine(),
             fix(2.7, 20),
-            fix(3, 25), // tp1, 25th second
+            tp1(),
             fix(3.1, 28),
             fix(-2.7, 30),
-            fix(-3.01, 35), // tp2, 35th second
-            fix(-0.8, 44) // photolanding
+            tp2(),
+            photolanding()
         );
+    }
+
+    private Fix fixAfterStartLine() {
+        return fix(0.1, 11);
+    }
+
+    private Fix tp1() {
+        return fix(3, 25);
+    }
+
+    private Fix tp2() {
+        return fix(-3.01, 35);
+    }
+
+    private Fix photolanding() {
+        return fix(-2.8, 44);
     }
 
     private WayPoint wp(double lonMinutes, String description) {

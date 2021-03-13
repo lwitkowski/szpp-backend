@@ -15,8 +15,8 @@ class FixTest {
         Fix fix = Fix.parseIgcLine(RAW_FIX_1);
 
         assertThat(fix.time).isEqualTo("19:35:25");
-        assertThat(fix.latitude).isEqualTo(34.48077777777778);
-        assertThat(fix.longitude).isEqualTo(459.4243611111111);
+        assertThat(fix.latitude).isEqualTo(34.47513333333333);
+        assertThat(fix.longitude).isEqualTo(459.42128333333335);
         assertThat(fix.altitudeBaro).isEqualTo(12397);
         assertThat(fix.altitudeGps).isEqualTo(12351);
     }

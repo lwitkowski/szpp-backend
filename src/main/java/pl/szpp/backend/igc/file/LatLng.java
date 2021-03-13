@@ -24,15 +24,12 @@ public class LatLng {
         this.longitude = parseLongitude(longitudeString);
     }
 
+    // 5206343N: <lat> i.e. 52 degrees 06.343 minutes North
     public static double parseLatitude(String lat) {
         String pureDigits = lat.replace("N", "").replace("S", "");
         double degrees = Double.parseDouble(pureDigits.substring(0, 2));
-        double minutes = Double.parseDouble(pureDigits.substring(2, 4));
-        double seconds = Double.parseDouble(pureDigits.substring(4, 6));
-        if (pureDigits.length() > 6) {
-            seconds += Double.parseDouble("0." + pureDigits.substring(6));
-        }
-        double latDecimalFormat = degrees + minutes / 60 + seconds / 3600;
+        double minutes = Double.parseDouble(pureDigits.substring(2, 4) + "." + pureDigits.substring(4));
+        double latDecimalFormat = degrees + minutes / 60;
         if (hasSuffix(lat, 'S')) {
             latDecimalFormat *= -1;
         }
@@ -40,15 +37,12 @@ public class LatLng {
         return latDecimalFormat;
     }
 
+    // 00006198W: <long> i.e. 000 degrees 06.198 minutes West
     public static double parseLongitude(String lon) {
         String pureDigits = lon.replace("W", "").replace("E", "");
         double degrees = Double.parseDouble(pureDigits.substring(0, 3));
-        double minutes = Double.parseDouble(pureDigits.substring(3, 5));
-        double seconds = Double.parseDouble(pureDigits.substring(5, 7));
-        if (pureDigits.length() > 7) {
-            seconds += Double.parseDouble("0." + pureDigits.substring(7));
-        }
-        double lonDecimalFormat = degrees + minutes / 60 + seconds / 3600;
+        double minutes = Double.parseDouble(pureDigits.substring(3, 5) + "." + pureDigits.substring(5));
+        double lonDecimalFormat = degrees + minutes / 60;
         if (hasSuffix(lon, 'W')) {
             lonDecimalFormat = -1 * lonDecimalFormat;
         }
@@ -58,17 +52,15 @@ public class LatLng {
     public String latitudeString() {
         double absValue = Math.abs(latitude);
         int d = (int) absValue;
-        int m = (int) ((absValue - d) * 60.0);
-        long s = Math.round((absValue - d - m / 60.0) * 3600);
-        return String.format("%02d%02d%02d", d, m, s) + ((latitude >= 0) ? "N" : "S");
+        double m = ((absValue - d) * 60.0);
+        return String.format("%02d%02d%03d", d, (int) m, (int) Math.round((m - (int) m) * 1000)) + ((latitude >= 0) ? "N" : "S");
     }
 
     public String longitudeString() {
         double absValue = Math.abs(longitude);
         int d = (int) absValue;
-        int m = (int) ((absValue - d) * 60.0);
-        long s = Math.round((absValue - d - m / 60.0) * 3600);
-        return String.format("%03d%02d%02d", d, m, s) + ((longitude >= 0) ? "E" : "W");
+        double m = ((absValue - d) * 60.0);
+        return String.format("%03d%02d%03d", d, (int) m, (int) Math.round((m - (int) m) * 1000)) + ((longitude >= 0) ? "E" : "W");
     }
 
     private static boolean hasSuffix(String lat, char c) {

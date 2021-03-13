@@ -23,6 +23,7 @@ public class TaskResult {
     public final LocalTime startTime;
     public final LocalTime finishTime;
     public final Duration duration;
+    public final double distance;
 
     public TaskResult(IgcFile igc, List<WayPoint> reachedWayPoints, Map<WayPoint, SectorHit> bestHits) {
         this.igc = igc;
@@ -36,10 +37,20 @@ public class TaskResult {
             this.startTime = startWpHit.time;
             this.finishTime = lastWpHit.time;
             this.duration = Duration.between(startWpHit.time, lastWpHit.time).abs();
+
+            double distanceTmp = 0.0;
+            WayPoint prev = reachedWayPoints.get(0);
+            for(int i = 1; i < reachedWayPoints.size(); ++i) {
+                WayPoint current = reachedWayPoints.get(i);
+                distanceTmp += prev.distanceTo(current);
+                prev = current;
+            }
+            this.distance = distanceTmp - 2000;
         } else {
             this.startTime = null;
             this.finishTime = null;
             this.duration = null;
+            this.distance = 0.0;
         }
     }
 
@@ -51,7 +62,7 @@ public class TaskResult {
 
     @JsonProperty
     public double averageSpeed() {
-        return isCompleted() ? (igc.declaration.distance() - 2.0) / (duration.toSeconds() / 3600.0) : 0.0;
+        return isCompleted() ? 3.6 * distance / duration.toSeconds() : 0.0;
     }
 
     @JsonProperty
@@ -61,21 +72,44 @@ public class TaskResult {
             .collect(Collectors.toList());
     }
 
-    // P=(10xL+50xVrz)xfk xfs
     @JsonProperty
-    public int bitnerScore() {
-        if(!isCompleted()) {
-            return 0;
-        }
-
-        double distance = igc.declaration.distance() - 2.0;
-        double taskCoefficient = 1.05;
-        double gliderHandicap = 0.96;
-        return (int) Math.round((10 * distance + 50 * averageSpeed()) * taskCoefficient * gliderHandicap);
+    public BitnerResult bitner() {
+        return new BitnerResult("TRI", "Pegase");
     }
 
     private WayPoint lastReachedWp() {
         return reachedWayPoints.get(reachedWayPoints.size() - 1);
+    }
+
+    public class BitnerResult {
+
+        private final Map<String, Double> taskCoefficients = Map.of(
+            "3TP", 0.95,
+            "TRI", 1.0,
+            "FAI_TRI", 1.05
+        );
+        private final Map<String, Double> gliderHandicaps = Map.of(
+            "Pegase", 0.96,
+            "JS1_18m", 0.816
+        );
+
+        public final int score;
+        public final double taskCoefficient;
+        public final double gliderHandicap;
+
+        public BitnerResult(String taskType, String gliderType) {
+            this.taskCoefficient = taskCoefficients.getOrDefault(taskType, 1.0);
+            this.gliderHandicap = gliderHandicaps.getOrDefault(gliderType, 1.0);
+
+            if (isCompleted()) {
+                // P=(10xL+50xVrz)xfk xfs
+                this.score = (int) Math.round((10 * distance / 1000.0 + 50 * averageSpeed()) * taskCoefficient * gliderHandicap);
+            } else {
+                this.score = 0;
+            }
+
+        }
+
     }
 
     public static class WaypointHit extends LatLng {

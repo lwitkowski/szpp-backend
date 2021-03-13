@@ -27,9 +27,9 @@ import static java.util.stream.Collectors.toMap;
 
 public class BasicDeclaredTask implements Task {
 
-    public static final int START_LINE_METERS = 1000;
-    public static final int FINISH_CYLiNDER_RADIUS_METERS = 2000;
-    public static final int TURN_POINT_RADIUS_METERS = 500;
+    public static final double START_LINE_METERS = 1000;
+    public static final double FINISH_CYLiNDER_RADIUS_METERS = 2000;
+    public static final double TURN_POINT_RADIUS_METERS = 500;
 
     private static final Logger logger = LoggerFactory.getLogger(BasicDeclaredTask.class);
 
@@ -106,12 +106,15 @@ public class BasicDeclaredTask implements Task {
         return prepareSectors(igc.declaration).entrySet().stream()
             .collect(toMap(
                 Map.Entry::getKey,
-                entry -> findTimeSortedHits(igc, entry.getValue())
+                entry -> {
+                    System.out.println("checking " + entry.getKey());
+                    return findTimeSortedHits(igc, entry.getValue());
+                }
             ));
     }
 
     private Map<WayPoint, WayPointSector> prepareSectors(TaskDeclaration declaration) {
-        Map<WayPoint, WayPointSector> sectors = new HashMap<>();
+        Map<WayPoint, WayPointSector> sectors = new LinkedHashMap<>();
 
         sectors.put(
             declaration.getStart(),

@@ -32,7 +32,7 @@ class TaskDeclarationTest {
     void distanceCalculationShouldWorkd() {
         TaskDeclaration declaration = createTestDeclaration();
 
-        assertThat(declaration.distance()).isEqualTo(306.9630787587083);
+        assertThat(declaration.distance()).isEqualTo(305.9888582831112);
     }
 
     private TaskDeclaration createTestDeclaration() {

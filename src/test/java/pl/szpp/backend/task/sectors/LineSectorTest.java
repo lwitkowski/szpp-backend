@@ -28,8 +28,8 @@ class LineSectorTest {
 
         assertThat(hitOptional).isNotEmpty();
         SectorHit hit = hitOptional.get();
-        assertThat(hit.latitudeString()).isEqualTo("505310N");
-        assertThat(hit.longitudeString()).isEqualTo("0191228E");
+        assertThat(hit.latitudeString()).isEqualTo("5053100N");
+        assertThat(hit.longitudeString()).isEqualTo("01912283E");
         assertThat(hit.time).isEqualTo("19:35:06");
     }
 

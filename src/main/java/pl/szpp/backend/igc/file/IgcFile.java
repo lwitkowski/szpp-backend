@@ -1,7 +1,6 @@
 package pl.szpp.backend.igc.file;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.http.util.TextUtils;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -81,22 +80,6 @@ public class IgcFile {
         return (takeOffFix != null && landingFix != null) ? Duration.between(takeOffFix.time, landingFix.time) : Duration.ZERO;
     }
 
-    public String getGliderTypeAndId() {
-        if (TextUtils.isEmpty(gliderId) && TextUtils.isEmpty(gliderType)) {
-            return "";
-        }
-
-        if (TextUtils.isEmpty(gliderType)) {
-            return gliderId;
-        } else {
-            if (!TextUtils.isEmpty(gliderId)) {
-                String gliderInformationPlaceholder = "%1$s (%2$s)";
-                return String.format(gliderInformationPlaceholder, gliderType, gliderId);
-            } else {
-                return gliderType;
-            }
-        }
-    }
     public int getTakeOffAltitude() {
         return track.get(0).getAltitude();
     }

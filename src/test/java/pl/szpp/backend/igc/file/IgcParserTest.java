@@ -2,8 +2,7 @@ package pl.szpp.backend.igc.file;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,8 +11,8 @@ class IgcParserTest {
     IgcParser parser = new IgcParser();
 
     @Test
-    void parserShouldWork() throws Exception {
-        FileInputStream is = new FileInputStream(new File("src/test/resources/igc/953LNF91.IGC"));
+    void parserShouldWork() {
+        InputStream is = ClassLoader.getSystemResourceAsStream("igc/953LNF91.IGC");
 
         IgcFile igc = parser.parse(is);
 
@@ -33,8 +32,8 @@ class IgcParserTest {
     }
 
     @Test
-    void shouldSupportNewDateFormat() throws Exception {
-        FileInputStream is = new FileInputStream(new File("src/test/resources/igc/HFDTEDATE.IGC"));
+    void shouldSupportNewDateFormat() {
+        InputStream is = ClassLoader.getSystemResourceAsStream("igc/HFDTEDATE.igc");
 
         IgcFile igc = parser.parse(is);
 

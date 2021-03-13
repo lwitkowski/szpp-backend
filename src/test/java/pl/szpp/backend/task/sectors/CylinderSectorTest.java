@@ -30,8 +30,8 @@ class CylinderSectorTest {
         assertThat(hitOptional).isNotEmpty();
         SectorHit hit = hitOptional.get();
 
-        assertThat(hit.latitudeString()).isEqualTo("000000N");
-        assertThat(hit.longitudeString()).isEqualTo("0000000E");
+        assertThat(hit.latitudeString()).isEqualTo("0000000N");
+        assertThat(hit.longitudeString()).isEqualTo("00000000E");
         assertThat(hit.time).isEqualTo("10:10:08");
     }
 

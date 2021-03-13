@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class LineSector implements WayPointSector {
 
-    public static LineSector forRoute(LatLng center, int widthMeters, WayPoint next) {
+    public static LineSector forRoute(LatLng center, double widthMeters, WayPoint next) {
         double latDiff = next.latitude - center.latitude;
 
         double northMean = (center.latitude + next.latitude) * Math.PI / 360;
@@ -17,7 +17,7 @@ public class LineSector implements WayPointSector {
         double longDiff = (center.longitude - next.longitude) * Math.cos(northMean);
         double hypotenuse = Math.sqrt(latDiff * latDiff + longDiff * longDiff);
 
-        int lineRadiusKm = widthMeters / 1000;
+        double lineRadiusKm = widthMeters / 1000;
         double latDelta = lineRadiusKm * longDiff / hypotenuse / 111.1949269;
         double longDelta = lineRadiusKm * latDiff / hypotenuse / 111.1949269 / Math.cos(startRads);
         return new LineSector(

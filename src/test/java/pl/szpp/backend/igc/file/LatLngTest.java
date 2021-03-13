@@ -11,33 +11,41 @@ class LatLngTest {
 
     @Test
     void parseShouldSupportNorthernAndEasternHemispheres() {
-        assertThat(EPRU.latitude).isEqualTo(50.88611111111111);
-        assertThat(EPRU.longitude).isEqualTo(19.202472222222223);
+        assertThat(EPRU.latitude).isEqualTo(50.885);
+        assertThat(EPRU.longitude).isEqualTo(19.201483333333332);
 
-        assertThat(EPKA.latitude).isEqualTo(50.89686111111111);
-        assertThat(EPKA.longitude).isEqualTo(20.73136111111111);
+        assertThat(EPKA.latitude).isEqualTo(50.89145);
+        assertThat(EPKA.longitude).isEqualTo(20.725483333333333);
     }
 
     @Test
     void parseShouldSupportSouthernAndWesternHemispheres() {
         LatLng coords = new LatLng("3428508S", "05925277W");
 
-        assertThat(coords.latitude).isEqualTo(-34.48077777777778);
-        assertThat(coords.longitude).isEqualTo(-59.42436111111111);
+        assertThat(coords.latitude).isEqualTo(-34.47513333333333);
+        assertThat(coords.longitude).isEqualTo(-59.421283333333335);
     }
 
     @Test
     void parseLongitudeShouldHandleVariableSecondsFieldLength() {
-        assertThat(LatLng.parseLongitude("0960118")).isEqualTo(96.02166666666666);
-        assertThat(LatLng.parseLongitude("09601180")).isEqualTo(96.02166666666666);
-        assertThat(LatLng.parseLongitude("09601181")).isEqualTo(96.02169444444445);
+        assertThat(LatLng.parseLongitude("0960118")).isEqualTo(96.01966666666667);
+        assertThat(LatLng.parseLongitude("09601180")).isEqualTo(96.01966666666667);
+        assertThat(LatLng.parseLongitude("09601181")).isEqualTo(96.01968333333333);
+    }
+
+    @Test
+    void serializeAndDeserializeShouldBeReversible() {
+        LatLng latLng = new LatLng("5141770N", "01612180E");
+
+        assertThat(latLng.latitudeString()).isEqualTo("5141770N");
+        assertThat(latLng.longitudeString()).isEqualTo("01612180E");
     }
 
     @Test
     void distanceToForCloseCoordinatesShouldWork() {
         double distance = EPRU.distanceTo(EPKA);
 
-        assertThat(distance).isEqualTo(107242.1924614171);
+        assertThat(distance).isEqualTo(106902.52890696337);
     }
 
     @Test
@@ -47,7 +55,7 @@ class LatLngTest {
 
         double distance = from.distanceTo(to);
 
-        assertThat(distance).isEqualTo(1.4313029156140221E7);
+        assertThat(distance).isEqualTo(1.4311827325162495E7);
     }
 
     @Test
@@ -58,8 +66,8 @@ class LatLngTest {
 
         LatLng destination = from.destination(bearing, distance);
 
-        assertThat(destination.latitudeString()).isEqualTo("504746N");
-        assertThat(destination.longitudeString()).isEqualTo("0191209W");
+        assertThat(destination.latitudeString()).isEqualTo("5047704N");
+        assertThat(destination.longitudeString()).isEqualTo("01912090W");
     }
 
     @Test
@@ -70,8 +78,8 @@ class LatLngTest {
 
         LatLng destination = from.destination(bearing, distance);
 
-        assertThat(destination.latitudeString()).isEqualTo("000000N");
-        assertThat(destination.longitudeString()).isEqualTo("0191733E");
+        assertThat(destination.latitudeString()).isEqualTo("0000000N");
+        assertThat(destination.longitudeString()).isEqualTo("01917486E");
     }
 
 
@@ -83,18 +91,18 @@ class LatLngTest {
 
         LatLng destination = from.destination(bearing, distance);
 
-        assertThat(destination.latitudeString()).isEqualTo("505333N");
-        assertThat(destination.longitudeString()).isEqualTo("0204249E");
+        assertThat(destination.latitudeString()).isEqualTo("5053493N");
+        assertThat(destination.longitudeString()).isEqualTo("02042758E");
     }
 
     @Test
     void latitudeString() {
-        assertThat(latitudeString(0.0)).isEqualTo("000000N");
-        assertThat(latitudeString(90.0)).isEqualTo("900000N");
-        assertThat(latitudeString(45.5)).isEqualTo("453000N");
-        assertThat(latitudeString(-45.5)).isEqualTo("453000S");
-        assertThat(latitudeString(-45.76)).isEqualTo("454536S");
-        assertThat(latitudeString(-45.77)).isEqualTo("454612S");
+        assertThat(latitudeString(0.0)).isEqualTo("0000000N");
+        assertThat(latitudeString(90.0)).isEqualTo("9000000N");
+        assertThat(latitudeString(45.5)).isEqualTo("4530000N");
+        assertThat(latitudeString(-45.5)).isEqualTo("4530000S");
+        assertThat(latitudeString(-45.76)).isEqualTo("4545600S");
+        assertThat(latitudeString(-45.77)).isEqualTo("4546200S");
     }
 
     private String latitudeString(double latitude) {
@@ -103,12 +111,12 @@ class LatLngTest {
 
     @Test
     void longitudeString() {
-        assertThat(longitudeString(0.0)).isEqualTo("0000000E");
-        assertThat(longitudeString(90.0)).isEqualTo("0900000E");
-        assertThat(longitudeString(45.5)).isEqualTo("0453000E");
-        assertThat(longitudeString(-45.5)).isEqualTo("0453000W");
-        assertThat(longitudeString(-45.76)).isEqualTo("0454536W");
-        assertThat(longitudeString(-45.77)).isEqualTo("0454612W");
+        assertThat(longitudeString(0.0)).isEqualTo("00000000E");
+        assertThat(longitudeString(90.0)).isEqualTo("09000000E");
+        assertThat(longitudeString(45.5)).isEqualTo("04530000E");
+        assertThat(longitudeString(-45.5)).isEqualTo("04530000W");
+        assertThat(longitudeString(-45.76)).isEqualTo("04545600W");
+        assertThat(longitudeString(-45.77)).isEqualTo("04546200W");
     }
 
     private String longitudeString(double longitude) {
